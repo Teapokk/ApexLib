@@ -1,104 +1,6 @@
---[[
-    ═══════════════════════════════════════════════════════════════════════
-    ██████╗ ██████╗ ███████╗██╗  ██╗    ██╗     ██╗██████╗ 
-    ██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝    ██║     ██║██╔══██╗
-    ███████║██████╔╝█████╗   ╚███╔╝     ██║     ██║██████╔╝
-    ██╔══██║██╔═══╝ ██╔══╝   ██╔██╗     ██║     ██║██╔══██╗
-    ██║  ██║██║     ███████╗██╔╝ ██╗    ███████╗██║██████╔╝
-    ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝ 
-    ═══════════════════════════════════════════════════════════════════════
-    
-    [ APEX LIBRARY v1.0 - ULTIMATE PROFESSIONAL EDITION ]
-    
-    ───────────────────────────────────────────────────────────────────────
-    ● Version:        v1.0 Ultimate Professional
-    ● Creator:        joaorqqq
-    ● Lines of Code:  3000+ (Optimized & Production-Ready)
-    ● Features:       100+ Professional Components
-    ● Platform:       Cross-Platform (PC, Mobile, Console)
-    ───────────────────────────────────────────────────────────────────────
-    
-    🎨 COMPONENT LIBRARY:
-    ✅ Advanced Window System (Draggable, Resizable, Multi-Window)
-    ✅ Tab System (Unlimited tabs, Icons, Badges)
-    ✅ Button (14 styles, Icons, Loading states)
-    ✅ Toggle (5 styles, Animated, Keyboard shortcuts)
-    ✅ Slider (Range, Dual-handle, Logarithmic)
-    ✅ Input (Text, Number, Password, Multi-line)
-    ✅ Dropdown (Searchable, Multi-select, Custom items)
-    ✅ Color Picker (RGB, HSV, Hex, Gradients)
-    ✅ Keybind Selector (Recording, Conflicts detection)
-    ✅ Label (Rich text, Formatting, Icons)
-    ✅ Divider (Horizontal, Vertical, Custom)
-    ✅ Image (URLs, Base64, Rounded corners)
-    ✅ Progress Bar (Linear, Circular, Custom)
-    ✅ Notification System (Toast, Banner, Modal)
-    ✅ Context Menu (Right-click, Custom items)
-    ✅ Tooltip System (Hover, Click, Delayed)
-    ✅ Modal Dialogs (Alert, Confirm, Prompt, Custom)
-    ✅ Data Grid (Sortable, Filterable, Pagination)
-    ✅ Chart System (Line, Bar, Pie, Scatter)
-    ✅ Code Editor (Syntax highlighting, Auto-complete)
-    ✅ File Browser (Virtual filesystem, Preview)
-    ✅ Search System (Global search, Filters)
-    ✅ Theme Engine (10+ built-in themes, Custom)
-    ✅ Animation System (Tweens, Keyframes, Easing)
-    ✅ Sound System (UI sounds, Volume control)
-    ✅ Save System (JSON, XML, Binary)
-    ✅ Localization (Multi-language support)
-    ✅ Accessibility (Screen reader, High contrast)
-    ✅ Performance Monitor (FPS, Memory, Profiler)
-    ✅ Plugin System (Load external modules)
-    
-    🔧 ADVANCED FEATURES:
-    ✅ GPU-Accelerated Rendering
-    ✅ Virtual Scrolling (Handle 10,000+ items)
-    ✅ Lazy Loading (Load components on demand)
-    ✅ State Management (Redux-like architecture)
-    ✅ Event Bus System (Pub/Sub pattern)
-    ✅ Middleware Support (Plugins, Interceptors)
-    ✅ HOT Module Replacement (Update without restart)
-    ✅ TypeScript-like Type System (Runtime checking)
-    ✅ Reactive Data Binding (Two-way sync)
-    ✅ Virtual DOM (Efficient updates)
-    ✅ Component Lifecycle (OnMount, OnUpdate, OnDestroy)
-    ✅ Error Boundaries (Graceful error handling)
-    ✅ Memory Pool (Object pooling for performance)
-    ✅ Web Worker Support (Multi-threading simulation)
-    ✅ WebSocket Integration (Real-time updates)
-    ✅ RESTful API Client (HTTP requests)
-    ✅ GraphQL Client (Advanced queries)
-    ✅ Database Abstraction (SQLite-like)
-    ✅ Encryption System (AES-256, RSA)
-    ✅ Compression (GZIP, LZ4)
-    ✅ Diff Algorithm (Efficient updates)
-    ✅ Undo/Redo System (Command pattern)
-    ✅ Clipboard Manager (Copy/Paste/History)
-    ✅ Drag & Drop (Components, Files)
-    ✅ Multi-Touch Support (Gestures)
-    ✅ Gamepad Integration (Controller support)
-    ✅ Voice Commands (Speech recognition)
-    ✅ Screen Recording (Video capture)
-    ✅ Analytics System (Usage tracking)
-    ✅ A/B Testing (Feature flags)
-    
-    📚 DOCUMENTATION:
-    ✅ Full API Reference (500+ pages)
-    ✅ Interactive Examples (100+ demos)
-    ✅ Video Tutorials (50+ hours)
-    ✅ Community Forum (Discord integration)
-    ✅ GitHub Repository (Open source)
-    
-    ═══════════════════════════════════════════════════════════════════════
---]]
-
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 1: CORE SYSTEM & UTILITIES ]]
--- ═══════════════════════════════════════════════════════════════════════
-
 local ApexLib = {}
 ApexLib.__index = ApexLib
-ApexLib.Version = "2.0.0"
+ApexLib.Version = "1.0.0"
 ApexLib.Author = "joaorqqq"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
 
@@ -118,9 +20,6 @@ local LocalizationService = game:GetService("LocalizationService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ UTILITY FUNCTIONS ]]
--- ═══════════════════════════════════════════════════════════════════════
 
 local Utility = {}
 
@@ -301,11 +200,7 @@ function Utility.IsPointInRect(px, py, rx, ry, rw, rh)
     return px >= rx and px <= rx + rw and py >= ry and py <= ry + rh
 end
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 2: COLOR SYSTEM ]]
--- ═══════════════════════════════════════════════════════════════════════
 
-local ColorSystem = {}
 ColorSystem.__index = ColorSystem
 
 -- Extended Color Palette (50+ colors)
@@ -438,9 +333,6 @@ function ColorSystem:Triadic(color)
     return Color3.fromRGB(r1, g1, b1), Color3.fromRGB(r2, g2, b2)
 end
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 3: THEME SYSTEM ]]
--- ═══════════════════════════════════════════════════════════════════════
 
 local ThemeSystem = {}
 ThemeSystem.__index = ThemeSystem
@@ -699,9 +591,6 @@ function ThemeSystem:AddTheme(name, themeData)
     self.Themes[name] = themeData
 end
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 4: ANIMATION SYSTEM ]]
--- ═══════════════════════════════════════════════════════════════════════
 
 local AnimationSystem = {}
 AnimationSystem.__index = AnimationSystem
@@ -883,10 +772,6 @@ function AnimationSystem:SlideIn(object, direction, duration, callback)
     return self:Create(object, {Position = original}, duration or 0.3, self.Easing.OutQuad, callback)
 end
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 5: NOTIFICATION SYSTEM ]]
--- ═══════════════════════════════════════════════════════════════════════
-
 local NotificationSystem = {}
 NotificationSystem.__index = NotificationSystem
 NotificationSystem.Container = nil
@@ -1067,10 +952,6 @@ end
 function NotificationSystem:Error(title, message, duration)
     return self:Notify({Title = title, Message = message, Duration = duration, Type = "Error", Icon = "❌"})
 end
-
--- ═══════════════════════════════════════════════════════════════════════
--- [[ SECTION 6: WINDOW SYSTEM ]]
--- ═══════════════════════════════════════════════════════════════════════
 
 function ApexLib:CreateWindow(config)
     local self = setmetatable({}, ApexLib)
@@ -1607,10 +1488,6 @@ function ApexLib:CreateWindow(config)
     return self
 end
 
--- ═══════════════════════════════════════════════════════════════════════
--- [[ STARTUP & INITIALIZATION ]]
--- ═══════════════════════════════════════════════════════════════════════
-
 print([[
 ═══════════════════════════════════════════════════════════════════════
     ██████╗ ██████╗ ███████╗██╗  ██╗    ██╗     ██╗██████╗ 
@@ -1621,7 +1498,7 @@ print([[
     ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝ 
 ═══════════════════════════════════════════════════════════════════════
 
-    🎉 APEX LIBRARY v5.0 LOADED SUCCESSFULLY!
+    🎉 APEX LIBRARY v1.0 LOADED SUCCESSFULLY!
     
     ───────────────────────────────────────────────────────────────────
     ● Version:       ]] .. ApexLib.Version .. [[
@@ -1629,19 +1506,6 @@ print([[
     ● Author:        ]] .. ApexLib.Author .. [[
     
     ● Build Date:    ]] .. ApexLib.BuildDate .. [[
-    
-    ● Lines of Code: 3000+
-    ───────────────────────────────────────────────────────────────────
-    
-    📚 FEATURES LOADED:
-    ✅ Advanced Window System
-    ✅ Component Library (10+ components)
-    ✅ Theme System (5 built-in themes)
-    ✅ Animation System (20+ easing functions)
-    ✅ Notification System
-    ✅ Color System (50+ colors)
-    ✅ Utility Functions (30+ helpers)
-    
     ───────────────────────────────────────────────────────────────────
     🚀 Ready for production use!
     📖 Documentation: github.com/joaorqqq/ApexLib
