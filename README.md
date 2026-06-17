@@ -76,7 +76,7 @@ Pearl, Khaki
 
 ### Installation
 ```lua
-local Apex = loadstring(game:HttpGet("https://raw.githubusercontent.com/joaorqqq/ApexLib/main/ApexLib.lua"))()
+local Apex = loadstring(game:HttpGet("https://raw.githubusercontent.com/Teapokk/ApexLib/main/ApexLib.lua"))()
 ```
 
 ### Basic Example
