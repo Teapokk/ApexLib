@@ -1,8 +1,10 @@
 local ApexLib = {}
 ApexLib.__index = ApexLib
 ApexLib.Version = "1.0.0"
-ApexLib.Author = "joaorqqq"
+ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
+ApexLib.Proxy = "apexproxy.vercel.app"
+ApexLib.Github = "https://github.com/Teapokk/ApexLib"
 
 -- Services
 local TweenService = game:GetService("TweenService")
@@ -20,6 +22,7 @@ local LocalizationService = game:GetService("LocalizationService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
+local ColorSystem = {}
 
 local Utility = {}
 
