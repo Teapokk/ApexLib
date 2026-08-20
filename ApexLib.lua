@@ -1,6 +1,6 @@
 local ApexLib = {}
 ApexLib.__index = ApexLib
-ApexLib.Version = "1.1.1"
+ApexLib.Version = "1.2.1"
 ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
 ApexLib.Github = "https://github.com/Teapokk/ApexLib"
