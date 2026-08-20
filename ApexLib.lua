@@ -3,7 +3,6 @@ ApexLib.__index = ApexLib
 ApexLib.Version = "1.0.0"
 ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
-ApexLib.Proxy = "apexproxy.vercel.app"
 ApexLib.Github = "https://github.com/Teapokk/ApexLib"
 
 -- Services
@@ -223,6 +222,7 @@ ColorSystem.Palette = {
     Brown = Color3.fromRGB(162, 132, 94),
     
     -- Grayscale
+    Graphite = Color3.fromRGB(40, 40, 45),
     White = Color3.fromRGB(255, 255, 255),
     LightGray = Color3.fromRGB(209, 209, 214),
     Gray = Color3.fromRGB(142, 142, 147),
