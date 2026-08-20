@@ -1,6 +1,6 @@
 local ApexLib = {}
 ApexLib.__index = ApexLib
-ApexLib.Version = "1.1.0"
+ApexLib.Version = "1.1.1"
 ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
 ApexLib.Github = "https://github.com/Teapokk/ApexLib"
@@ -1222,7 +1222,57 @@ function ApexLib:CreateWindow(config)
         tab.Button = tabBtn
         
         -- Add Button Method
-        
+        function tab:AddButton(config)
+    local btnConfig = Utility.MergeTables({
+        ID = nil,
+        Title = "Button",
+        Color = "graphite",
+        Callback = function() end
+    }, config or {})
+
+    local btn = Instance.new("TextButton")
+    btn.Name = btnConfig.ID or btnConfig.Title
+    btn.Size = UDim2.new(1, -10, 0, 35)
+    btn.BackgroundColor3 = ColorSystem:Get(btnConfig.Color, theme.ButtonBackground)
+    btn.Text = btnConfig.Title
+    btn.TextSize = 13
+    btn.TextColor3 = theme.TextPrimary
+    btn.Font = Enum.Font.GothamBold
+    btn.BorderSizePixel = 0
+    btn.Parent = tabPage
+
+    -- Theme identifiers
+    btn:SetAttribute("ApexID", btnConfig.ID or btnConfig.Title)
+    btn:SetAttribute("ApexTab", tabName)
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        pcall(btnConfig.Callback)
+    end)
+
+    btn.MouseEnter:Connect(function()
+        AnimationSystem:Create(
+            btn,
+            {BackgroundColor3 = ColorSystem:Lighten(btn.BackgroundColor3, 10)},
+            0.1
+        )
+    end)
+
+    btn.MouseLeave:Connect(function()
+        AnimationSystem:Create(
+            btn,
+            {BackgroundColor3 = ColorSystem:Get(btnConfig.Color, theme.ButtonBackground)},
+            0.1
+        )
+    end)
+
+    table.insert(tab.Elements, btn)
+
+    return btn
+end
         function tab:AddDropdown(config)
     config = config or {}
 
