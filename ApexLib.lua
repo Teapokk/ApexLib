@@ -1564,7 +1564,44 @@ end
     
     return self
 end
+function ApexLib:SetTheme(ID, Color, Tab)
+    if typeof(Color) ~= "Color3" then
+        warn("[ApexLib] SetTheme: Color must be a Color3")
+        return
+    end
 
+    for _, object in ipairs(game:GetService("CoreGui"):GetDescendants()) do
+        if object:GetAttribute("ApexID") == ID then
+
+            local objectTab = object:GetAttribute("ApexTab")
+
+            if Tab == nil or objectTab == Tab then
+
+                if object:IsA("Frame")
+                    or object:IsA("TextButton")
+                    or object:IsA("TextBox")
+                    or object:IsA("ScrollingFrame") then
+
+                    object.BackgroundColor3 = Color
+
+                elseif object:IsA("TextLabel") then
+
+                    object.TextColor3 = Color
+
+                elseif object:IsA("ImageLabel")
+                    or object:IsA("ImageButton") then
+
+                    object.ImageColor3 = Color
+                end
+
+                return true
+            end
+        end
+    end
+
+    warn("[ApexLib] SetTheme: ID '" .. tostring(ID) .. "' was not found")
+    return false
+end
 print([[
 ═══════════════════════════════════════════════════════════════════════
     ██████╗ ██████╗ ███████╗██╗  ██╗    ██╗     ██╗██████╗ 
