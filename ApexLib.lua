@@ -1333,6 +1333,161 @@ end
 
     return dropdown
 end
+        function tab:AddMultiDropdown(config)
+    config = config or {}
+
+    local multiConfig = Utility.MergeTables({
+        Label = "Multi Dropdown",
+        Options = {},
+        Default = {},
+        Callback = function(selected) end
+    }, config)
+
+    local selected = {}
+
+    -- Default selections
+    for _, value in ipairs(multiConfig.Default) do
+        selected[value] = true
+    end
+
+    local dropdown = Instance.new("TextButton")
+    dropdown.Name = multiConfig.Label
+    dropdown.Size = UDim2.new(1, -10, 0, 40)
+    dropdown.BackgroundColor3 = theme.ButtonBackground
+    dropdown.BorderSizePixel = 0
+    dropdown.TextColor3 = theme.TextPrimary
+    dropdown.TextSize = 14
+    dropdown.Font = Enum.Font.Gotham
+    dropdown.TextXAlignment = Enum.TextXAlignment.Left
+    dropdown.Text = multiConfig.Label
+    dropdown.Parent = tabPage
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 12)
+    padding.PaddingRight = UDim.new(0, 12)
+    padding.Parent = dropdown
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = dropdown
+
+    -- Options container
+    local list = Instance.new("Frame")
+    list.Name = "Options"
+    list.Size = UDim2.new(1, 0, 0, 0)
+    list.Position = UDim2.new(0, 0, 1, 5)
+    list.BackgroundColor3 = theme.ButtonBackground
+    list.BorderSizePixel = 0
+    list.Visible = false
+    list.ZIndex = 20
+    list.Parent = dropdown
+
+    local listCorner = Instance.new("UICorner")
+    listCorner.CornerRadius = UDim.new(0, 8)
+    listCorner.Parent = list
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 2)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = list
+
+    local function getSelected()
+        local result = {}
+
+        for _, option in ipairs(multiConfig.Options) do
+            if selected[option] then
+                table.insert(result, option)
+            end
+        end
+
+        return result
+    end
+
+    local function updateText()
+        local values = getSelected()
+
+        if #values == 0 then
+            dropdown.Text = multiConfig.Label
+        elseif #values <= 2 then
+            dropdown.Text = table.concat(values, ", ")
+        else
+            dropdown.Text = tostring(#values) .. " selected"
+        end
+    end
+
+    local function updateListSize()
+        local count = #multiConfig.Options
+        list.Size = UDim2.new(1, 0, 0, count * 34 + 5)
+    end
+
+    for index, option in ipairs(multiConfig.Options) do
+        local optionButton = Instance.new("TextButton")
+
+        optionButton.Name = tostring(option)
+        optionButton.Size = UDim2.new(1, 0, 0, 32)
+        optionButton.BackgroundColor3 = theme.ButtonBackground
+        optionButton.BorderSizePixel = 0
+        optionButton.TextColor3 = theme.TextPrimary
+        optionButton.TextSize = 13
+        optionButton.Font = Enum.Font.Gotham
+        optionButton.TextXAlignment = Enum.TextXAlignment.Left
+        optionButton.ZIndex = 21
+        optionButton.LayoutOrder = index
+        optionButton.Parent = list
+
+        local optionPadding = Instance.new("UIPadding")
+        optionPadding.PaddingLeft = UDim.new(0, 10)
+        optionPadding.Parent = optionButton
+
+        local function updateOption()
+            if selected[option] then
+                optionButton.Text = "☑ " .. tostring(option)
+                optionButton.BackgroundColor3 = theme.ButtonHover
+            else
+                optionButton.Text = "☐ " .. tostring(option)
+                optionButton.BackgroundColor3 = theme.ButtonBackground
+            end
+        end
+
+        updateOption()
+
+        optionButton.MouseButton1Click:Connect(function()
+            selected[option] = not selected[option]
+
+            updateOption()
+            updateText()
+
+            pcall(function()
+                multiConfig.Callback(getSelected())
+            end)
+        end)
+
+        optionButton.MouseEnter:Connect(function()
+            if not selected[option] then
+                AnimationSystem:Create(
+                    optionButton,
+                    {BackgroundColor3 = theme.ButtonHover},
+                    0.1
+                )
+            end
+        end)
+
+        optionButton.MouseLeave:Connect(function()
+            updateOption()
+        end)
+    end
+
+    updateListSize()
+    updateText()
+
+    dropdown.MouseButton1Click:Connect(function()
+        list.Visible = not list.Visible
+    end)
+
+    table.insert(tab.Elements, dropdown)
+
+    return dropdown
+        end
         function tab:AddLabel(text)
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -10, 0, 30)
