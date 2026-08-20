@@ -1,6 +1,6 @@
 local ApexLib = {}
 ApexLib.__index = ApexLib
-ApexLib.Version = "1.0.0"
+ApexLib.Version = "1.1.0"
 ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
 ApexLib.Github = "https://github.com/Teapokk/ApexLib"
@@ -1258,7 +1258,81 @@ function ApexLib:CreateWindow(config)
             table.insert(tab.Elements, btn)
             return btn
         end
-        
+        function tab:AddDropdown(config)
+    config = config or {}
+
+    local dropdown = Instance.new("TextButton")
+    dropdown.Size = UDim2.new(1, -10, 0, 40)
+    dropdown.BackgroundColor3 = theme.ButtonBackground
+    dropdown.BorderSizePixel = 0
+    dropdown.Text = config.Label or "Dropdown"
+    dropdown.TextColor3 = theme.TextPrimary
+    dropdown.TextSize = 14
+    dropdown.Font = Enum.Font.Gotham
+    dropdown.Parent = tabPage
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = dropdown
+
+    local list = Instance.new("Frame")
+    list.Size = UDim2.new(1, 0, 0, 0)
+    list.Position = UDim2.new(0, 0, 1, 5)
+    list.BackgroundColor3 = theme.ButtonBackground
+    list.BorderSizePixel = 0
+    list.Visible = false
+    list.ZIndex = 20
+    list.Parent = dropdown
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 3)
+    layout.Parent = list
+
+    for _, option in ipairs(config.Options or {}) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Size = UDim2.new(1, 0, 0, 32)
+        optionButton.BackgroundColor3 = theme.ButtonBackground
+        optionButton.BorderSizePixel = 0
+        optionButton.Text = tostring(option)
+        optionButton.TextColor3 = theme.TextPrimary
+        optionButton.TextSize = 13
+        optionButton.Font = Enum.Font.Gotham
+        optionButton.ZIndex = 21
+        optionButton.Parent = list
+
+        optionButton.MouseButton1Click:Connect(function()
+            dropdown.Text = tostring(option)
+            list.Visible = false
+
+            if config.Callback then
+                config.Callback(option)
+            end
+        end)
+    end
+
+    dropdown.MouseButton1Click:Connect(function()
+        list.Visible = not list.Visible
+    end)
+
+    table.insert(tab.Elements, dropdown)
+
+    return dropdown
+end
+        function tab:AddLabel(text)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0, 30)
+    label.BackgroundTransparency = 1
+    label.Text = text or "Label"
+    label.TextColor3 = theme.TextPrimary
+    label.TextSize = 14
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = tabPage
+
+    table.insert(tab.Elements, label)
+
+    return label
+        end
         -- Add Toggle Method
         function tab:AddToggle(config)
             local toggleConfig = Utility.MergeTables({
