@@ -1582,40 +1582,52 @@ end
 function ApexLib:SetTheme(ID, Color, Tab)
     if typeof(Color) ~= "Color3" then
         warn("[ApexLib] SetTheme: Color must be a Color3")
-        return
+        return false
     end
 
-    for _, object in ipairs(game:GetService("CoreGui"):GetDescendants()) do
-        if object:GetAttribute("ApexID") == ID then
+    local found = false
 
+    for _, object in ipairs(self.ScreenGui:GetDescendants()) do
+        if object:GetAttribute("ApexID") == ID then
             local objectTab = object:GetAttribute("ApexTab")
 
             if Tab == nil or objectTab == Tab then
 
-                if object:IsA("Frame")
-                    or object:IsA("TextButton")
-                    or object:IsA("TextBox")
-                    or object:IsA("ScrollingFrame") then
-
+                -- Background
+                if object:IsA("GuiObject") then
                     object.BackgroundColor3 = Color
+                end
 
-                elseif object:IsA("TextLabel") then
-
+                -- Text
+                if object:IsA("TextLabel")
+                    or object:IsA("TextButton")
+                    or object:IsA("TextBox") then
                     object.TextColor3 = Color
+                end
 
-                elseif object:IsA("ImageLabel")
+                -- Images
+                if object:IsA("ImageLabel")
                     or object:IsA("ImageButton") then
-
                     object.ImageColor3 = Color
                 end
 
-                return true
+                -- UIStroke
+                for _, child in ipairs(object:GetChildren()) do
+                    if child:IsA("UIStroke") then
+                        child.Color = Color
+                    end
+                end
+
+                found = true
             end
         end
     end
 
-    warn("[ApexLib] SetTheme: ID '" .. tostring(ID) .. "' was not found")
-    return false
+    if not found then
+        warn("[ApexLib] SetTheme: ID '" .. tostring(ID) .. "' was not found")
+    end
+
+    return found
 end
 print([[
 ═══════════════════════════════════════════════════════════════════════
