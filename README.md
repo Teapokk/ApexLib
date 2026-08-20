@@ -1,8 +1,8 @@
-# 🌑 Apex Elite Library v1.0
+# 🌑 Apex Library v1.0
 
 <div align="center">
 
-![Apex Elite Banner](https://img.shields.io/badge/APEX-ELITE-blueviolet?style=for-the-badge)
+![Apex Banner](https://img.shields.io/badge/APEXLIB-blueviolet?style=for-the-badge)
 ![Version](https://img.shields.io/badge/version-1.0-blue?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Roblox-red?style=flat-square)
 ![Mobile Support](https://img.shields.io/badge/mobile-supported-orange?style=flat-square)
@@ -17,11 +17,7 @@ Specifically designed for Mobile and PC.
 
 ---
 
-## 📜 The Origin Story
-
-In **Salvador, Bahia (Brazil)**, a 12-year-old developer who enjoyed using Roblox exploits had the idea to create a library similar to Fluent and Rayfield because those two were too limiting. 
-
-And so **ApexLib** was born—a library that supports **Delta, Arceus X, Fluxus**, and more. 
+**ApexLib** was born—a library that supports **Delta, Arceus X, Fluxus**, and more. 
 
 > *"If you want to make an executor, this is the one; the input is customizable, everything is customizable, and it's **COOL**."*
 
@@ -67,7 +63,7 @@ Salmon, Coral
 ### ⚪ Neutral Colors
 ```
 White, Black, Gray, Silver, Beige, Ivory, Graphite
-Pearl, Khaki
+Pearl, Khaki, Graphite
 ```
 
 ---
@@ -83,7 +79,7 @@ local Apex = loadstring(game:HttpGet("https://raw.githubusercontent.com/Teapokk/
 ```lua
 -- Create Window
 local Window = Apex:CreateWindow({
-    Title = "Apex Elite Hub",
+    Title = "Apex Lib Hub",
     Name = "MyScript",
     Keybind = Enum.KeyCode.RightControl
 })
