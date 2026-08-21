@@ -1794,7 +1794,7 @@ print([[
     ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝ 
 ═══════════════════════════════════════════════════════════════════════
 
-    🎉 APEX LIBRARY v1.0 LOADED SUCCESSFULLY!
+    🎉 APEX LIBRARY v]] .. ApexLib.Version .. [[ LOADED SUCCESSFULLY!
     
     ───────────────────────────────────────────────────────────────────
     ● Version:       ]] .. ApexLib.Version .. [[
