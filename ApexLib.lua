@@ -1088,6 +1088,87 @@ function ApexLib:CreateWindow(config)
     mainFrame.Parent = screenGui
     
     self.MainFrame = mainFrame
+
+    local uiScale = Instance.new("UIScale")
+    uiScale.Name = "ApexAutoScale"
+    uiScale.Scale = 1
+    uiScale.Parent = mainFrame
+
+    self.UIScale = uiScale
+
+    local camera = workspace.CurrentCamera
+    local baseWidth = self.Size.X.Offset
+    local baseHeight = self.Size.Y.Offset
+
+    local function updateAutoScale()
+        if not self.AutoScale then
+            uiScale.Scale = 1
+            return
+        end
+
+        camera = workspace.CurrentCamera
+
+        if not camera then
+            return
+        end
+
+        local viewport = camera.ViewportSize
+
+        if viewport.X <= 0 or viewport.Y <= 0 then
+            return
+        end
+
+        local padding = self.AutoScalePadding
+
+        local availableWidth = math.max(
+            viewport.X - padding * 2,
+            1
+        )
+
+        local availableHeight = math.max(
+            viewport.Y - padding * 2,
+            1
+        )
+
+        local scaleX = availableWidth / baseWidth
+        local scaleY = availableHeight / baseHeight
+        
+        local scale = math.min(
+            scaleX,
+            scaleY,
+            1
+        )
+
+    
+        scale = math.max(
+            scale,
+            self.AutoScaleMin
+        )
+
+        uiScale.Scale = scale
+    end
+
+    self._AutoScaleConnection =
+        workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+            camera = workspace.CurrentCamera
+
+            if camera then
+                camera:GetPropertyChangedSignal("ViewportSize"):Connect(
+                    updateAutoScale
+                )
+            end
+
+            updateAutoScale()
+        end)
+
+    if camera then
+        self._ViewportConnection =
+            camera:GetPropertyChangedSignal("ViewportSize"):Connect(
+                updateAutoScale
+            )
+    end
+
+    task.defer(updateAutoScale)
     
     local mainCorner = Instance.new("UICorner")
     mainCorner.CornerRadius = UDim.new(0, 12)
