@@ -1,6 +1,6 @@
 local ApexLib = {}
 ApexLib.__index = ApexLib
-ApexLib.Version = "1.2.1"
+ApexLib.Version = "1.2.0"
 ApexLib.Author = "Teapokk"
 ApexLib.BuildDate = os.date("%Y-%m-%d")
 ApexLib.Github = "https://github.com/Teapokk/ApexLib"
@@ -26,35 +26,51 @@ local ColorSystem = {}
 local Utility = {}
 
 -- Deep Clone Function
-function Utility.DeepClone(original)
-    local copy
-    if type(original) == "table" then
-        copy = {}
-        for k, v in next, original, nil do
-            copy[Utility.DeepClone(k)] = Utility.DeepClone(v)
-        end
-        setmetatable(copy, Utility.DeepClone(getmetatable(original)))
-    else
-        copy = original
+function Utility.DeepClone(original, cache)
+    if type(original) ~= "table" then
+        return original
     end
+
+    cache = cache or {}
+    if cache[original] then
+        return cache[original]
+    end
+
+    local copy = {}
+    cache[original] = copy
+
+    for k, v in pairs(original) do
+        copy[Utility.DeepClone(k, cache)] = Utility.DeepClone(v, cache)
+    end
+
+    local mt = getmetatable(original)
+    if mt then
+        setmetatable(copy, Utility.DeepClone(mt, cache))
+    end
+
     return copy
 end
-
 -- Merge Tables
 function Utility.MergeTables(...)
     local result = {}
-    for _, tbl in ipairs({...}) do
-        for k, v in pairs(tbl) do
-            if type(v) == "table" and type(result[k]) == "table" then
-                result[k] = Utility.MergeTables(result[k], v)
-            else
-                result[k] = v
+
+    for i = 1, select("#", ...) do
+        local tbl = select(i, ...)
+        if type(tbl) == "table" then
+            for k, v in pairs(tbl) do
+                if type(v) == "table" and type(result[k]) == "table" then
+                    result[k] = Utility.MergeTables(result[k], v)
+                elseif type(v) == "table" then
+                    result[k] = Utility.DeepClone(v)
+                else
+                    result[k] = v
+                end
             end
         end
     end
+
     return result
 end
-
 -- UUID Generator
 function Utility.GenerateUUID()
     local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
@@ -102,6 +118,9 @@ end
 
 -- Map Range
 function Utility.MapRange(value, inMin, inMax, outMin, outMax)
+    if inMax == inMin then
+        return outMin
+    end
     return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
 end
 
@@ -183,8 +202,11 @@ end
 function Utility.FormatNumber(num)
     local formatted = tostring(num)
     while true do
-        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1,%2")
-        if k == 0 then break end
+        local count
+        formatted, count = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1,%2")
+        if count == 0 then
+            break
+        end
     end
     return formatted
 end
@@ -598,169 +620,216 @@ end
 local AnimationSystem = {}
 AnimationSystem.__index = AnimationSystem
 
--- Easing Functions
 AnimationSystem.Easing = {
     Linear = function(t) return t end,
-    
     InQuad = function(t) return t * t end,
     OutQuad = function(t) return t * (2 - t) end,
-    InOutQuad = function(t)
-        return t < 0.5 and 2 * t * t or -1 + (4 - 2 * t) * t
-    end,
-    
+    InOutQuad = function(t) return t < 0.5 and 2 * t * t or -1 + (4 - 2 * t) * t end,
     InCubic = function(t) return t * t * t end,
-    OutCubic = function(t) return (t - 1) * (t - 1) * (t - 1) + 1 end,
-    InOutCubic = function(t)
-        return t < 0.5 and 4 * t * t * t or (t - 1) * (2 * t - 2) * (2 * t - 2) + 1
-    end,
-    
-    InQuart = function(t) return t * t * t * t end,
-    OutQuart = function(t) return 1 - (t - 1) * (t - 1) * (t - 1) * (t - 1) end,
-    InOutQuart = function(t)
-        return t < 0.5 and 8 * t * t * t * t or 1 - 8 * (t - 1) * (t - 1) * (t - 1) * (t - 1)
-    end,
-    
-    InExpo = function(t) return t == 0 and 0 or math.pow(2, 10 * (t - 1)) end,
-    OutExpo = function(t) return t == 1 and 1 or 1 - math.pow(2, -10 * t) end,
+    OutCubic = function(t) return 1 + (t - 1)^3 end,
+    InOutCubic = function(t) return t < 0.5 and 4 * t^3 or 1 + 4 * (t - 1)^3 end,
+    InQuart = function(t) return t^4 end,
+    OutQuart = function(t) return 1 - (t - 1)^4 end,
+    InOutQuart = function(t) return t < 0.5 and 8 * t^4 or 1 - 8 * (t - 1)^4 end,
+    InExpo = function(t) return t == 0 and 0 or 2^(10 * (t - 1)) end,
+    OutExpo = function(t) return t == 1 and 1 or 1 - 2^(-10 * t) end,
     InOutExpo = function(t)
         if t == 0 then return 0 end
         if t == 1 then return 1 end
-        if t < 0.5 then
-            return math.pow(2, 20 * t - 10) / 2
-        else
-            return (2 - math.pow(2, -20 * t + 10)) / 2
-        end
+        return t < 0.5 and 2^(20 * t - 10) / 2 or (2 - 2^(-20 * t + 10)) / 2
     end,
-    
     InBack = function(t)
         local c = 1.70158
         return t * t * ((c + 1) * t - c)
     end,
     OutBack = function(t)
         local c = 1.70158
-        return 1 + (t - 1) * (t - 1) * ((c + 1) * (t - 1) + c)
+        return 1 + (t - 1)^2 * ((c + 1) * (t - 1) + c)
     end,
     InOutBack = function(t)
         local c = 1.70158 * 1.525
-        return t < 0.5
-            and (math.pow(2 * t, 2) * ((c + 1) * 2 * t - c)) / 2
-            or (math.pow(2 * t - 2, 2) * ((c + 1) * (t * 2 - 2) + c) + 2) / 2
+        return t < 0.5 and ((2 * t)^2 * ((c + 1) * 2 * t - c)) / 2
+            or ((2 * t - 2)^2 * ((c + 1) * (2 * t - 2) + c) + 2) / 2
     end,
-    
     InElastic = function(t)
         local c = (2 * math.pi) / 3
-        return t == 0 and 0 or t == 1 and 1 or -math.pow(2, 10 * t - 10) * math.sin((t * 10 - 10.75) * c)
+        return t == 0 and 0 or t == 1 and 1 or -2^(10 * t - 10) * math.sin((t * 10 - 10.75) * c)
     end,
     OutElastic = function(t)
         local c = (2 * math.pi) / 3
-        return t == 0 and 0 or t == 1 and 1 or math.pow(2, -10 * t) * math.sin((t * 10 - 0.75) * c) + 1
+        return t == 0 and 0 or t == 1 and 1 or 2^(-10 * t) * math.sin((t * 10 - 0.75) * c) + 1
     end,
     InOutElastic = function(t)
         local c = (2 * math.pi) / 4.5
         if t == 0 then return 0 end
         if t == 1 then return 1 end
-        if t < 0.5 then
-            return -(math.pow(2, 20 * t - 10) * math.sin((20 * t - 11.125) * c)) / 2
-        else
-            return (math.pow(2, -20 * t + 10) * math.sin((20 * t - 11.125) * c)) / 2 + 1
-        end
+        return t < 0.5 and -(2^(20 * t - 10) * math.sin((20 * t - 11.125) * c)) / 2
+            or (2^(-20 * t + 10) * math.sin((20 * t - 11.125) * c)) / 2 + 1
     end,
-    
     InBounce = function(t) return 1 - AnimationSystem.Easing.OutBounce(1 - t) end,
     OutBounce = function(t)
-        local n1 = 7.5625
-        local d1 = 2.75
-        
+        local n1, d1 = 7.5625, 2.75
         if t < 1 / d1 then
             return n1 * t * t
         elseif t < 2 / d1 then
-            t = t - (1.5 / d1)
+            t = t - 1.5 / d1
             return n1 * t * t + 0.75
         elseif t < 2.5 / d1 then
-            t = t - (2.25 / d1)
+            t = t - 2.25 / d1
             return n1 * t * t + 0.9375
-        else
-            t = t - (2.625 / d1)
-            return n1 * t * t + 0.984375
         end
+        t = t - 2.625 / d1
+        return n1 * t * t + 0.984375
     end,
     InOutBounce = function(t)
-        return t < 0.5
-            and (1 - AnimationSystem.Easing.OutBounce(1 - 2 * t)) / 2
+        return t < 0.5 and (1 - AnimationSystem.Easing.OutBounce(1 - 2 * t)) / 2
             or (1 + AnimationSystem.Easing.OutBounce(2 * t - 1)) / 2
     end,
 }
 
--- Create Animation
-function AnimationSystem:Create(object, properties, duration, easingFunc, callback)
-    easingFunc = easingFunc or self.Easing.OutQuad
-    
-    local startValues = {}
-    for prop, endValue in pairs(properties) do
-        startValues[prop] = object[prop]
+local TweenMap = {
+    [AnimationSystem.Easing.Linear] = {Enum.EasingStyle.Linear, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.InQuad] = {Enum.EasingStyle.Quad, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutQuad] = {Enum.EasingStyle.Quad, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutQuad] = {Enum.EasingStyle.Quad, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InCubic] = {Enum.EasingStyle.Cubic, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutCubic] = {Enum.EasingStyle.Cubic, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutCubic] = {Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InQuart] = {Enum.EasingStyle.Quart, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutQuart] = {Enum.EasingStyle.Quart, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutQuart] = {Enum.EasingStyle.Quart, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InExpo] = {Enum.EasingStyle.Exponential, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutExpo] = {Enum.EasingStyle.Exponential, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutExpo] = {Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InBack] = {Enum.EasingStyle.Back, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutBack] = {Enum.EasingStyle.Back, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutBack] = {Enum.EasingStyle.Back, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InElastic] = {Enum.EasingStyle.Elastic, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutElastic] = {Enum.EasingStyle.Elastic, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutElastic] = {Enum.EasingStyle.Elastic, Enum.EasingDirection.InOut},
+    [AnimationSystem.Easing.InBounce] = {Enum.EasingStyle.Bounce, Enum.EasingDirection.In},
+    [AnimationSystem.Easing.OutBounce] = {Enum.EasingStyle.Bounce, Enum.EasingDirection.Out},
+    [AnimationSystem.Easing.InOutBounce] = {Enum.EasingStyle.Bounce, Enum.EasingDirection.InOut},
+}
+
+local function SafeCallback(callback, ...)
+    if type(callback) ~= "function" then return end
+    pcall(callback, ...)
+end
+
+local function FilterTweenProperties(object, properties)
+    local valid = {}
+    for property, target in pairs(properties or {}) do
+        local ok, current = pcall(function() return object[property] end)
+        if ok and current ~= nil then
+            valid[property] = target
+        end
     end
-    
-    local startTime = tick()
+    return valid
+end
+
+function AnimationSystem:Create(object, properties, duration, easingFunc, callback)
+    if not object or not object.Parent then return nil end
+    if type(properties) ~= "table" then return nil end
+
+    duration = tonumber(duration) or 0.3
+    if duration < 0 then duration = 0 end
+    easingFunc = easingFunc or self.Easing.OutQuad
+
+    local validProperties = FilterTweenProperties(object, properties)
+    if next(validProperties) == nil then
+        SafeCallback(callback)
+        return nil
+    end
+
+    local mapped = TweenMap[easingFunc]
+    if mapped then
+        local tweenInfo = TweenInfo.new(duration, mapped[1], mapped[2])
+        local ok, tween = pcall(TweenService.Create, TweenService, object, tweenInfo, validProperties)
+        if not ok or not tween then
+            return nil
+        end
+
+        local completedConnection
+        if callback then
+            completedConnection = tween.Completed:Connect(function(state)
+                if state == Enum.PlaybackState.Completed then
+                    SafeCallback(callback)
+                end
+                if completedConnection then
+                    completedConnection:Disconnect()
+                    completedConnection = nil
+                end
+            end)
+        end
+
+        tween:Play()
+        return tween
+    end
+
+    -- Preserve support for user-supplied easing functions without forcing every built-in animation onto RenderStepped.
+    local startValues = {}
+    for property, target in pairs(validProperties) do
+        local ok, current = pcall(function() return object[property] end)
+        if ok then startValues[property] = current end
+    end
+
+    local startTime = time()
     local connection
-    
     connection = RunService.RenderStepped:Connect(function()
-        local elapsed = tick() - startTime
-        local progress = math.min(elapsed / duration, 1)
-        local easedProgress = easingFunc(progress)
-        
-        for prop, endValue in pairs(properties) do
-            local startValue = startValues[prop]
-            
+        if not object.Parent then
+            connection:Disconnect()
+            return
+        end
+
+        local progress = duration <= 0 and 1 or math.min((time() - startTime) / duration, 1)
+        local ok, eased = pcall(easingFunc, progress)
+        if not ok then eased = progress end
+
+        for property, target in pairs(validProperties) do
+            local startValue = startValues[property]
             if typeof(startValue) == "number" then
-                object[prop] = Utility.Lerp(startValue, endValue, easedProgress)
-            elseif typeof(startValue) == "UDim2" then
-                object[prop] = startValue:Lerp(endValue, easedProgress)
-            elseif typeof(startValue) == "Vector2" then
-                object[prop] = startValue:Lerp(endValue, easedProgress)
-            elseif typeof(startValue) == "Color3" then
-                object[prop] = startValue:Lerp(endValue, easedProgress)
-            elseif typeof(startValue) == "Vector3" then
-                object[prop] = startValue:Lerp(endValue, easedProgress)
+                object[property] = Utility.Lerp(startValue, target, eased)
+            elseif typeof(startValue) == "UDim2" or typeof(startValue) == "Vector2" or typeof(startValue) == "Color3" or typeof(startValue) == "Vector3" then
+                object[property] = startValue:Lerp(target, eased)
             end
         end
-        
+
         if progress >= 1 then
             connection:Disconnect()
-            if callback then callback() end
+            SafeCallback(callback)
         end
     end)
-    
+
     return connection
 end
 
--- Fade In
 function AnimationSystem:FadeIn(object, duration, callback)
     return self:Create(object, {BackgroundTransparency = 0, TextTransparency = 0}, duration or 0.3, self.Easing.OutQuad, callback)
 end
 
--- Fade Out
 function AnimationSystem:FadeOut(object, duration, callback)
     return self:Create(object, {BackgroundTransparency = 1, TextTransparency = 1}, duration or 0.3, self.Easing.OutQuad, callback)
 end
 
--- Scale Up
 function AnimationSystem:ScaleUp(object, duration, callback)
+    if not object or not object.Parent then return nil end
     local original = object.Size
     object.Size = UDim2.new(0, 0, 0, 0)
     return self:Create(object, {Size = original}, duration or 0.3, self.Easing.OutBack, callback)
 end
 
--- Scale Down
 function AnimationSystem:ScaleDown(object, duration, callback)
     return self:Create(object, {Size = UDim2.new(0, 0, 0, 0)}, duration or 0.3, self.Easing.InBack, callback)
 end
 
--- Slide In (from direction)
 function AnimationSystem:SlideIn(object, direction, duration, callback)
-    direction = direction or "Left" -- Left, Right, Top, Bottom
+    direction = direction or "Left"
+    if not object or not object.Parent then return nil end
+
     local original = object.Position
-    local startPos
-    
+    local startPos = original
+
     if direction == "Left" then
         startPos = UDim2.new(-1, 0, original.Y.Scale, original.Y.Offset)
     elseif direction == "Right" then
@@ -770,7 +839,7 @@ function AnimationSystem:SlideIn(object, direction, duration, callback)
     elseif direction == "Bottom" then
         startPos = UDim2.new(original.X.Scale, original.X.Offset, 2, 0)
     end
-    
+
     object.Position = startPos
     return self:Create(object, {Position = original}, duration or 0.3, self.Easing.OutQuad, callback)
 end
@@ -956,7 +1025,33 @@ function NotificationSystem:Error(title, message, duration)
     return self:Notify({Title = title, Message = message, Duration = duration, Type = "Error", Icon = "❌"})
 end
 
+local ActiveSlider = nil
+local SliderRouterStarted = false
+
+local function StartSliderRouter()
+    if SliderRouterStarted then return end
+    SliderRouterStarted = true
+
+    UserInputService.InputChanged:Connect(function(input)
+        local slider = ActiveSlider
+        if not slider then return end
+        if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
+        if slider.Track and slider.Track.Parent then
+            slider.Update(input)
+        else
+            ActiveSlider = nil
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            ActiveSlider = nil
+        end
+    end)
+end
+
 function ApexLib:CreateWindow(config)
+    StartSliderRouter()
     local self = setmetatable({}, ApexLib)
     
     -- Configuration
@@ -1582,92 +1677,102 @@ end
                 Min = 0,
                 Max = 100,
                 Default = 50,
+                Step = 1,
                 Callback = function(value) end
             }, config or {})
-            
-            local value = sliderConfig.Default
-            
+
+            local minValue = tonumber(sliderConfig.Min) or 0
+            local maxValue = tonumber(sliderConfig.Max) or 100
+            if maxValue < minValue then
+                minValue, maxValue = maxValue, minValue
+            end
+            if maxValue == minValue then
+                maxValue = minValue + 1
+            end
+
+            local step = tonumber(sliderConfig.Step) or 1
+            if step <= 0 then step = 1 end
+
+            local value = Utility.Clamp(tonumber(sliderConfig.Default) or minValue, minValue, maxValue)
+
+            local function snap(raw)
+                local stepped = minValue + math.floor(((raw - minValue) / step) + 0.5) * step
+                return Utility.Clamp(stepped, minValue, maxValue)
+            end
+
+            local function ratioFor(v)
+                return Utility.Clamp((v - minValue) / (maxValue - minValue), 0, 1)
+            end
+
+            value = snap(value)
+
             local sliderFrame = Instance.new("Frame")
             sliderFrame.Size = UDim2.new(1, -10, 0, 55)
             sliderFrame.BackgroundColor3 = theme.Surface
             sliderFrame.BorderSizePixel = 0
             sliderFrame.Parent = tabPage
-            
+
             local sliderCorner = Instance.new("UICorner")
             sliderCorner.CornerRadius = UDim.new(0, 8)
             sliderCorner.Parent = sliderFrame
-            
+
             local titleLabel = Instance.new("TextLabel")
             titleLabel.Size = UDim2.new(1, -20, 0, 20)
             titleLabel.Position = UDim2.new(0, 10, 0, 5)
             titleLabel.BackgroundTransparency = 1
-            titleLabel.Text = sliderConfig.Title .. ": " .. value
+            titleLabel.Text = sliderConfig.Title .. ": " .. tostring(value)
             titleLabel.TextSize = 13
             titleLabel.TextColor3 = theme.TextPrimary
             titleLabel.Font = Enum.Font.GothamBold
             titleLabel.TextXAlignment = Enum.TextXAlignment.Left
             titleLabel.Parent = sliderFrame
-            
+
             local trackFrame = Instance.new("Frame")
             trackFrame.Size = UDim2.new(0.9, 0, 0, 6)
             trackFrame.Position = UDim2.new(0.05, 0, 0, 35)
             trackFrame.BackgroundColor3 = theme.ButtonBackground
             trackFrame.BorderSizePixel = 0
             trackFrame.Parent = sliderFrame
-            
+
             local trackCorner = Instance.new("UICorner")
             trackCorner.CornerRadius = UDim.new(1, 0)
             trackCorner.Parent = trackFrame
-            
+
             local fillFrame = Instance.new("Frame")
-            fillFrame.Size = UDim2.new((value - sliderConfig.Min) / (sliderConfig.Max - sliderConfig.Min), 0, 1, 0)
+            fillFrame.Size = UDim2.new(ratioFor(value), 0, 1, 0)
             fillFrame.BackgroundColor3 = theme.Primary
             fillFrame.BorderSizePixel = 0
             fillFrame.Parent = trackFrame
-            
+
             local fillCorner = Instance.new("UICorner")
             fillCorner.CornerRadius = UDim.new(1, 0)
             fillCorner.Parent = fillFrame
-            
+
             local function updateSlider(input)
-                local mousePos = input.Position.X
-                local trackPos = trackFrame.AbsolutePosition.X
+                if not trackFrame.Parent then return end
                 local trackSize = trackFrame.AbsoluteSize.X
-                
-                local ratio = Utility.Clamp((mousePos - trackPos) / trackSize, 0, 1)
-                value = math.floor(sliderConfig.Min + (sliderConfig.Max - sliderConfig.Min) * ratio)
-                
+                if trackSize <= 0 then return end
+
+                local ratio = Utility.Clamp((input.Position.X - trackFrame.AbsolutePosition.X) / trackSize, 0, 1)
+                value = snap(minValue + (maxValue - minValue) * ratio)
+                ratio = ratioFor(value)
+
                 fillFrame.Size = UDim2.new(ratio, 0, 1, 0)
-                titleLabel.Text = sliderConfig.Title .. ": " .. value
-                
-                pcall(function() sliderConfig.Callback(value) end)
+                titleLabel.Text = sliderConfig.Title .. ": " .. tostring(value)
+                SafeCallback(sliderConfig.Callback, value)
             end
-            
-            local dragging = false
-            
+
             trackFrame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = true
+                    ActiveSlider = {Track = trackFrame, Update = updateSlider}
                     updateSlider(input)
                 end
             end)
-            
-            UserInputService.InputChanged:Connect(function(input)
-                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                    updateSlider(input)
-                end
-            end)
-            
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = false
-                end
-            end)
-            
+
             table.insert(tab.Elements, sliderFrame)
             return sliderFrame
         end
-        
+
         -- Add Input Method
         function tab:AddInput(config)
             local inputConfig = Utility.MergeTables({
@@ -1734,9 +1839,8 @@ end
     
     return self
 end
-function ApexLib:SetTheme(ID, Color, Tab)
+function ApexLib:SetColor(ID, Color, Tab)
     if typeof(Color) ~= "Color3" then
-        warn("[ApexLib] SetTheme: Color must be a Color3")
         return false
     end
 
@@ -1778,35 +1882,9 @@ function ApexLib:SetTheme(ID, Color, Tab)
         end
     end
 
-    if not found then
-        warn("[ApexLib] SetTheme: ID '" .. tostring(ID) .. "' was not found")
-    end
-
     return found
 end
-print([[
-═══════════════════════════════════════════════════════════════════════
-    ██████╗ ██████╗ ███████╗██╗  ██╗    ██╗     ██╗██████╗ 
-    ██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝    ██║     ██║██╔══██╗
-    ███████║██████╔╝█████╗   ╚███╔╝     ██║     ██║██████╔╝
-    ██╔══██║██╔═══╝ ██╔══╝   ██╔██╗     ██║     ██║██╔══██╗
-    ██║  ██║██║     ███████╗██╔╝ ██╗    ███████╗██║██████╔╝
-    ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝ 
-═══════════════════════════════════════════════════════════════════════
+-- Silent by default: executor consoles stay clean.
 
-    🎉 APEX LIBRARY v]] .. ApexLib.Version .. [[ LOADED SUCCESSFULLY!
-    
-    ───────────────────────────────────────────────────────────────────
-    ● Version:       ]] .. ApexLib.Version .. [[
-    
-    ● Author:        ]] .. ApexLib.Author .. [[
-    
-    ● Build Date:    ]] .. ApexLib.BuildDate .. [[
-    ───────────────────────────────────────────────────────────────────
-    🚀 Ready for production use!
-    📖 Documentation: github.com/joaorqqq/ApexLib
-    💬 Discord: discord.gg/H6pWukrA7
-═══════════════════════════════════════════════════════════════════════
-]])
 
 return ApexLib
