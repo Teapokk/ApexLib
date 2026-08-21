@@ -1920,6 +1920,102 @@ end
     
     return self
 end
+function Tab:SetInput(ElementName, NewText)
+    local Element = self.Elements[ElementName]
+    if Element then
+        Element.Value = NewText
+        Element.Instance.TextBox.Text = tostring(NewText)
+        if Element.Callback then
+            Element.Callback(NewText)
+        end
+    end
+end
+
+function Tab:SetLabel(ElementName, NewText)
+    local Element = self.Elements[ElementName]
+    if Element then
+        Element.Instance.TextLabel.Text = tostring(NewText)
+    end
+end
+
+function Tab:SetSlider(ElementName, NewValue)
+    local Element = self.Elements[ElementName]
+    if Element then
+        NewValue = math.clamp(NewValue, Element.Min, Element.Max)
+        Element.Value = NewValue
+        local Percent = (NewValue - Element.Min) / (Element.Max - Element.Min)
+        Element.Instance.Fill.Size = UDim2.new(Percent, 0, 1, 0)
+        Element.Instance.ValueText.Text = tostring(NewValue)
+        if Element.Callback then
+            Element.Callback(NewValue)
+        end
+    end
+end
+
+function Tab:SetToggle(ElementName, NewState)
+    local Element = self.Elements[ElementName]
+    if Element then
+        Element.State = NewState
+        if Element.Callback then
+            Element.Callback(NewState)
+        end
+    end
+end
+
+function Tab:SetMultiDropdown(ElementName, NewOptionsTable)
+    local Element = self.Elements[ElementName]
+    if Element then
+        Element.Values = NewOptionsTable
+        if Element.Callback then
+            Element.Callback(NewOptionsTable)
+        end
+    end
+end
+
+function Tab:SetDropdown(ElementName, NewOption)
+    local Element = self.Elements[ElementName]
+    if Element then
+        Element.Value = NewOption
+        Element.Instance.SelectedText.Text = tostring(NewOption)
+        if Element.Callback then
+            Element.Callback(NewOption)
+        end
+    end
+end
+
+function Window:SetTitle(NewTitle)
+    if self.Instance and self.Instance.TitleLabel then
+        self.Instance.TitleLabel.Text = tostring(NewTitle)
+    end
+end
+
+function Tab:AddParagraph(Config)
+    local ParagraphInfo = {
+        Name = Config.Name or Config.Title,
+        Title = Config.Title or "",
+        Content = Config.Content or "",
+        Instance = {} 
+    }
+    
+    self.Elements[ParagraphInfo.Name] = ParagraphInfo
+    
+    return ParagraphInfo
+end
+
+function Tab:SetParagraph(ElementName, NewTitle, NewContent)
+    local Element = self.Elements[ElementName]
+    if Element then
+        if NewTitle then
+            Element.Title = NewTitle
+            Element.Instance.TitleLabel.Text = tostring(NewTitle)
+        end
+        if NewContent then
+            Element.Content = NewContent
+            Element.Instance.ContentLabel.Text = tostring(NewContent)
+        end
+    end
+end
+
 function ApexLib:SetColor(ID, Color, Tab)
     if typeof(Color) ~= "Color3" then
         return false
